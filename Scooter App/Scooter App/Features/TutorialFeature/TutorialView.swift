@@ -52,10 +52,13 @@ struct TutorialView: View {
     private var isBrakeStep: Bool { viewModel.current == .brake }
     private var isSteerStep: Bool { viewModel.current == .steer }
 
-    private func rawRollDeg() -> Double { motion.roll * 180 / .pi }
+    // Core: Use pitch in landscape, roll in portrait
+    private func rawSteerDeg() -> Double {
+        isLandscape ? motion.pitch * 180 / .pi : motion.roll * 180 / .pi
+    }
     private func steeringDegrees(isLandscape: Bool) -> Double {
         guard isLandscape else { return 0 }
-        let value = (rawRollDeg() - steerZeroDeg) * steerSign
+        let value = (rawSteerDeg() - steerZeroDeg) * steerSign
         return max(-35, min(35, value))
     }
 
@@ -228,11 +231,11 @@ struct TutorialView: View {
             motion.start()
             // If your wheel turns the wrong way, set to -1 instead of +1
             steerSign = +1
-            steerZeroDeg = rawRollDeg()
+            steerZeroDeg = rawSteerDeg()
         } else {
             motion.isEnabled = false
             motion.stop()
-            steerZeroDeg = rawRollDeg()
+            steerZeroDeg = rawSteerDeg()
         }
     }
 }
